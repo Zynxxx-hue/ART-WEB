@@ -61,12 +61,12 @@ function toggleExplore(id) {
     if (el) {
         if (el.style.display === "none" || el.style.display === "") {
             el.style.display = "block";
-            // Smooth scroll to the explore section
+          
             setTimeout(() => {
                 el.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 100);
         } else {
-            // Scroll back to modal top before collapsing
+           
             const modalContent = el.closest(".modal-content");
             if (modalContent) {
                 modalContent.scrollTo({ top: 0, behavior: "smooth" });
@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("scroll", syncHeaderOnScroll, { passive: true });
     }
 
-    // Mobile Menu Toggle
+   
     const mobileMenu = document.getElementById("mobile-menu");
     const mainNav = document.getElementById("mainNav");
     const navLinks = document.querySelectorAll("#mainNav a");
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
             syncModalBodyState();
         });
 
-        // Close menu when a link is clicked
+        
         navLinks.forEach((link) => {
             link.addEventListener("click", () => {
                 mobileMenu.classList.remove("is-active");
