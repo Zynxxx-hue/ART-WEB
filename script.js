@@ -1,18 +1,59 @@
-﻿function openModal(id) {
+﻿function syncModalBodyState() {
+    const hasOpenModal = Boolean(document.querySelector(".modal.is-open"));
+    const mainNav = document.getElementById("mainNav");
+    const isMenuOpen = Boolean(mainNav && mainNav.classList.contains("active"));
+
+    document.body.classList.toggle("modal-open", hasOpenModal);
+    document.body.style.overflow = hasOpenModal || isMenuOpen ? "hidden" : "auto";
+}
+
+function openModal(id) {
     const modal = document.getElementById(id);
-    if (modal) {
-        document.body.classList.remove("is-leaving");
-        modal.style.display = "block";
-        document.body.style.overflow = "hidden";
-    }
+    if (!modal) return;
+
+    document.body.classList.remove("is-leaving");
+
+    document.querySelectorAll(".modal").forEach((otherModal) => {
+        if (otherModal !== modal) {
+            otherModal.classList.remove("is-open");
+            otherModal.style.display = "none";
+        }
+    });
+
+    modal.querySelectorAll(".explore-section").forEach((section) => {
+        section.style.display = "none";
+    });
+
+    const modalContent = modal.querySelector(".modal-content");
+    const resetModalToTop = () => {
+        modal.scrollTop = 0;
+        if (modalContent) {
+            modalContent.scrollTop = 0;
+        }
+    };
+
+    modal.style.display = "flex";
+    requestAnimationFrame(() => {
+        modal.classList.add("is-open");
+        resetModalToTop();
+        setTimeout(resetModalToTop, 80);
+        setTimeout(resetModalToTop, 240);
+        syncModalBodyState();
+    });
 }
 
 function closeModal(id) {
     const modal = document.getElementById(id);
-    if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }
+    if (!modal) return;
+
+    modal.classList.remove("is-open");
+
+    setTimeout(() => {
+        if (!modal.classList.contains("is-open")) {
+            modal.style.display = "none";
+        }
+        syncModalBodyState();
+    }, 220);
 }
 
 function toggleExplore(id) {
@@ -22,13 +63,13 @@ function toggleExplore(id) {
             el.style.display = "block";
             // Smooth scroll to the explore section
             setTimeout(() => {
-                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                el.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 100);
         } else {
             // Scroll back to modal top before collapsing
-            const modalContent = el.closest('.modal-content');
+            const modalContent = el.closest(".modal-content");
             if (modalContent) {
-                modalContent.scrollTo({ top: 0, behavior: 'smooth' });
+                modalContent.scrollTo({ top: 0, behavior: "smooth" });
             }
             setTimeout(() => {
                 el.style.display = "none";
@@ -37,52 +78,33 @@ function toggleExplore(id) {
     }
 }
 
-// Function for clicking the painting (Photo Zoom Lightbox)
-function zoomImage(imgSrc) {
-    const zoomModal = document.getElementById("imageZoomModal");
-    const zoomImg = document.getElementById("img01");
-    if (zoomModal && zoomImg) {
-        document.body.classList.remove("is-leaving");
-        zoomModal.style.display = "block";
-        zoomImg.src = imgSrc;
-        document.body.style.overflow = "hidden";
-    }
-}
-
-function closeImageZoom() {
-    const zoomModal = document.getElementById("imageZoomModal");
-    if (zoomModal) {
-        zoomModal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }
-}
-
 function setupPageTransitions() {
-    if (document.querySelector('.page-transition-overlay')) return;
+    if (document.querySelector(".page-transition-overlay")) return;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'page-transition-overlay';
+    const overlay = document.createElement("div");
+    overlay.className = "page-transition-overlay";
     document.body.appendChild(overlay);
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    document.addEventListener('click', (event) => {
-        const link = event.target.closest('a[href]');
+    document.addEventListener("click", (event) => {
+        const link = event.target.closest("a[href]");
         if (!link) return;
+        if (document.body.classList.contains("modal-open")) return;
 
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (event.button && event.button !== 0) return;
 
-        const href = link.getAttribute('href');
+        const href = link.getAttribute("href");
         if (!href) return;
 
         if (
-            link.target === '_blank' ||
-            link.hasAttribute('download') ||
-            href.startsWith('#') ||
-            href.startsWith('mailto:') ||
-            href.startsWith('tel:') ||
-            href.startsWith('javascript:')
+            link.target === "_blank" ||
+            link.hasAttribute("download") ||
+            href.startsWith("#") ||
+            href.startsWith("mailto:") ||
+            href.startsWith("tel:") ||
+            href.startsWith("javascript:")
         ) {
             return;
         }
@@ -96,32 +118,52 @@ function setupPageTransitions() {
 
         if (destination.origin !== window.location.origin) return;
         if (destination.href === window.location.href) return;
-        if (document.body.classList.contains('is-leaving')) return;
-
+        if (document.body.classList.contains("is-leaving")) return;
         if (prefersReducedMotion) return;
 
         event.preventDefault();
-        document.body.classList.add('is-leaving');
+        document.body.classList.add("is-leaving");
         setTimeout(() => {
             window.location.href = destination.href;
         }, 280);
     });
 
-    window.addEventListener('pageshow', () => {
-        document.body.classList.remove('is-leaving');
+    window.addEventListener("pageshow", () => {
+        document.body.classList.remove("is-leaving");
     });
 }
 
-window.onclick = function (event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = "none";
-        document.body.style.overflow = "auto";
+window.addEventListener("click", (event) => {
+    if (event.target.classList.contains("modal") && event.target.classList.contains("is-open")) {
+        closeModal(event.target.id);
     }
-}
+});
 
+document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+
+    const activeModal = document.querySelector(".modal.is-open");
+    if (activeModal) {
+        closeModal(activeModal.id);
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     setupPageTransitions();
+
+    document.querySelectorAll(".modal").forEach((modal) => {
+        modal.classList.remove("is-open");
+        modal.style.display = "none";
+    });
+
+    const header = document.querySelector("header");
+    if (header) {
+        const syncHeaderOnScroll = () => {
+            header.classList.toggle("is-scrolled", window.scrollY > 12);
+        };
+        syncHeaderOnScroll();
+        window.addEventListener("scroll", syncHeaderOnScroll, { passive: true });
+    }
 
     // Mobile Menu Toggle
     const mobileMenu = document.getElementById("mobile-menu");
@@ -132,46 +174,63 @@ document.addEventListener("DOMContentLoaded", () => {
         mobileMenu.addEventListener("click", () => {
             mobileMenu.classList.toggle("is-active");
             mainNav.classList.toggle("active");
-            document.body.style.overflow = mainNav.classList.contains("active") ? "hidden" : "auto";
+            syncModalBodyState();
         });
 
         // Close menu when a link is clicked
-        navLinks.forEach(link => {
+        navLinks.forEach((link) => {
             link.addEventListener("click", () => {
                 mobileMenu.classList.remove("is-active");
                 mainNav.classList.remove("active");
-                document.body.style.overflow = "auto";
+                syncModalBodyState();
             });
         });
     }
 
-    const observerOptions = {
-        threshold: 0.15,
-        rootMargin: "0px 0px -50px 0px"
+    const revealGroups = [
+        { selector: ".hero-content", step: 0.06 },
+        { selector: ".page-banner-content", step: 0.08 },
+        { selector: ".exhibit-row", step: 0.1 },
+        { selector: ".exhibit-image-col", step: 0.06 },
+        { selector: ".exhibit-text-col", step: 0.08 },
+        { selector: ".masterpiece-divider", step: 0.08 },
+        { selector: ".about-grid, .about-text, .about-image", step: 0.08 },
+        { selector: ".footer-col", step: 0.1 }
+    ];
+
+    const revealTargets = [];
+    revealGroups.forEach((group) => {
+        const elements = document.querySelectorAll(group.selector);
+        elements.forEach((el, index) => {
+            if (el.dataset.revealBound === "true") return;
+            el.dataset.revealBound = "true";
+            el.classList.add("reveal-on-scroll");
+            el.style.transitionDelay = `${Math.min(index * group.step, 0.45)}s`;
+            revealTargets.push(el);
+        });
+    });
+
+    const revealElement = (el) => {
+        el.classList.add("is-visible");
     };
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
+    if ("IntersectionObserver" in window) {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -8% 0px"
+        };
 
-    // Apply staggered animation delays to exhibit rows
-    const rows = document.querySelectorAll(".exhibit-row");
-    rows.forEach((row, index) => {
-        row.classList.add("reveal-on-scroll");
-        row.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(row);
-    });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    revealElement(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
 
-    // Also animate footer columns
-    const footerCols = document.querySelectorAll(".footer-col");
-    footerCols.forEach((col, index) => {
-        col.classList.add("reveal-on-scroll");
-        col.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(col);
-    });
+        revealTargets.forEach((el) => observer.observe(el));
+    } else {
+        revealTargets.forEach(revealElement);
+    }
 });
