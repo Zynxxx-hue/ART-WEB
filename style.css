@@ -29,8 +29,13 @@ html,
 body {
     overflow-x: hidden;
     width: 100%;
+    max-width: 100%;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+}
+
+html {
+    overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
@@ -42,6 +47,9 @@ body {
     color: var(--text-dark);
     line-height: 1.6;
     animation: pageEnter 0.35s ease;
+    overflow-x: clip;
+    position: relative;
+    overscroll-behavior-x: none;
 }
 
 body.modal-open {
@@ -218,9 +226,11 @@ nav a.active::after {
 @media (max-width: 768px) {
     header {
         padding: 15px 25px;
-        width: 92%;
+        width: calc(100% - 24px);
         top: 16px;
         border-radius: 12px;
+        left: 12px;
+        transform: none;
     }
 
     header.is-scrolled {
@@ -234,7 +244,7 @@ nav a.active::after {
     nav {
         position: fixed;
         top: 0;
-        right: -100%;
+        right: 0;
         width: 100%;
         height: 100vh;
         background: rgba(10, 10, 10, 0.98);
@@ -244,11 +254,18 @@ nav a.active::after {
         align-items: center;
         justify-content: center;
         transition: var(--transition-smooth);
+        transform: translateX(100%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
         z-index: 1000;
     }
 
     nav.active {
-        right: 0;
+        transform: translateX(0);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
     }
 
     nav a {
@@ -363,42 +380,87 @@ nav a.active::after {
 }
 
 .btn-solid {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    color: var(--text-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: transform 0.45s ease, box-shadow 0.45s ease, color 0.45s ease, border-color 0.45s ease;
+}
+
+.btn-solid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 0;
     background: var(--primary-gold);
-    color: var(--bg-dark);
-    box-shadow: var(--shadow-gold);
+    border-radius: inherit;
+    z-index: -1;
+    transition: width 0.45s ease;
 }
 
 .btn-solid:hover {
-    background: var(--text-light);
+    color: var(--bg-dark);
+    border-color: var(--primary-gold);
     transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-gold);
+}
+
+.btn-solid:hover::before {
+    width: 100%;
 }
 
 .btn-detail {
-    background: transparent;
-    border: 1px solid var(--text-dark);
-    color: var(--text-dark);
+    background: #f5f5f5;
+    border: 2px solid rgba(40, 40, 40, 0.35);
+    color: #1d1d1f;
     padding: 12px 35px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
 }
 
 .btn-detail:hover {
-    background: var(--text-dark);
-    color: var(--text-light);
+    background: linear-gradient(145deg, #2a2a2d, #141416);
+    color: var(--primary-gold);
+    border-color: rgba(255, 255, 255, 0.08);
     transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
 }
 
 .btn-explore {
-    background: transparent;
-    border: 1px solid var(--primary-gold);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: #fdfdfd;
+    border: 2px solid rgba(201, 160, 92, 0.65);
     color: var(--primary-gold);
     margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: color 0.35s ease, transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.btn-explore::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: linear-gradient(145deg, #f1d99f, var(--primary-gold-light));
+    border-radius: inherit;
+    z-index: -1;
+    transition: width 0.4s ease;
 }
 
 .btn-explore:hover {
-    background: var(--primary-gold);
-    color: var(--text-light);
+    color: #1d1d1f;
+    border-color: rgba(201, 160, 92, 0.75);
     transform: translateY(-3px);
-    box-shadow: var(--shadow-gold);
+    box-shadow: 0 12px 26px rgba(138, 109, 59, 0.28);
+}
+
+.btn-explore:hover::before {
+    width: 100%;
 }
 
 /* Exhibit Layout */

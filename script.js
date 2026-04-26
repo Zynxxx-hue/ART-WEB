@@ -1,10 +1,17 @@
-﻿function syncModalBodyState() {
+function syncModalBodyState() {
     const hasOpenModal = Boolean(document.querySelector(".modal.is-open"));
     const mainNav = document.getElementById("mainNav");
     const isMenuOpen = Boolean(mainNav && mainNav.classList.contains("active"));
 
     document.body.classList.toggle("modal-open", hasOpenModal);
-    document.body.style.overflow = hasOpenModal || isMenuOpen ? "hidden" : "auto";
+    document.body.style.overflowX = "hidden";
+    document.body.style.overflowY = hasOpenModal || isMenuOpen ? "hidden" : "auto";
+}
+
+function lockHorizontalScroll() {
+    if (window.scrollX !== 0) {
+        window.scrollTo(0, window.scrollY);
+    }
 }
 
 function openModal(id) {
@@ -149,6 +156,9 @@ document.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    lockHorizontalScroll();
+    window.addEventListener("scroll", lockHorizontalScroll, { passive: true });
+    window.addEventListener("resize", lockHorizontalScroll, { passive: true });
     setupPageTransitions();
 
     document.querySelectorAll(".modal").forEach((modal) => {
@@ -171,6 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const navLinks = document.querySelectorAll("#mainNav a");
 
     if (mobileMenu && mainNav) {
+        mobileMenu.classList.remove("is-active");
+        mainNav.classList.remove("active");
+        syncModalBodyState();
+
         mobileMenu.addEventListener("click", () => {
             mobileMenu.classList.toggle("is-active");
             mainNav.classList.toggle("active");
@@ -234,3 +248,5 @@ document.addEventListener("DOMContentLoaded", () => {
         revealTargets.forEach(revealElement);
     }
 });
+
+
