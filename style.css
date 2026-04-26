@@ -703,7 +703,24 @@ nav a.active::after {
 
 @media (max-width: 768px) {
     .gallery-section {
-        padding: 100px 5%;
+        padding: 72px 12px;
+    }
+
+    .exhibit-row {
+        margin-bottom: 76px;
+        align-items: center;
+    }
+
+    .exhibit-image-col,
+    .exhibit-text-col {
+        width: 100%;
+        max-width: 100%;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .exhibit-text-col {
+        margin-top: -40px !important;
     }
 
     .masterpiece-divider {
@@ -981,10 +998,18 @@ footer a:hover {
         grid-template-columns: 1fr;
         padding: 80px 5%;
         text-align: center;
+        justify-items: center;
+    }
+
+    .about-text {
+        width: 100%;
+        max-width: 760px;
+        margin: 0 auto;
     }
 
     .about-text h2 {
         font-size: 2.5rem;
+        text-align: center;
     }
 
     .about-text p {
@@ -1060,6 +1085,25 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
+    .page-banner-content {
+        width: 100%;
+        padding: 0 20px;
+        text-align: center;
+    }
+
+    .about-grid {
+        padding: 70px 5%;
+    }
+
+    .about-text {
+        max-width: 100%;
+    }
+
+    .about-image {
+        width: min(100%, 340px);
+        margin: 0 auto;
+    }
+
     .footer-bottom {
         flex-direction: column;
         gap: 15px;
@@ -1067,8 +1111,8 @@ footer a:hover {
     }
 
     .about-image::after {
-        bottom: -15px;
-        right: -15px;
+        bottom: 0;
+        right: 0;
     }
 }
 
